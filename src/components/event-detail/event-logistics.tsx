@@ -29,7 +29,13 @@ function EventLogistics({
   return (
     <section className={styles.logistics}>
       <div className={styles.image}>
-        <Image src={`/${image}`} alt={imageAlt} />
+        <Image
+          src={`/${image}`}
+          alt={imageAlt}
+          width="0"
+          height="0"
+          sizes="100vw"
+        />
       </div>
       <ul className={styles.list}>
         <LogisticsItem icon={DateIcon}>
