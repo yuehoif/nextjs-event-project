@@ -1,8 +1,11 @@
-import Link from "next/link";
 import Image from "next/image";
 
 import { Event } from "@/dummy-data";
 import styles from "./event-item.module.css";
+import Button from "@/components/ui/button";
+import AddressIcon from "../icons/address-icon";
+import DateIcon from "../icons/date-icon";
+import ArrowRightIcon from "../icons/arrow-right-icon";
 
 type EventItemProps = {
   event: Event;
@@ -10,11 +13,6 @@ type EventItemProps = {
 
 export default function EventItem({ event }: EventItemProps) {
   const { id, title, date, location, image } = event;
-
-  const route = {
-    pathname: "/events/[id]",
-    query: { id: id },
-  };
 
   const humanReadableDate = new Date(date).toLocaleDateString("en-US", {
     day: "numeric",
@@ -31,14 +29,21 @@ export default function EventItem({ event }: EventItemProps) {
         <div className={styles.summary}>
           <h2>{title}</h2>
           <div className={styles.date}>
+            <DateIcon />
             <time>{humanReadableDate}</time>
           </div>
           <div className={styles.address}>
+            <AddressIcon />
             <address>{formattedAddress}</address>
           </div>
         </div>
         <div className={styles.actions}>
-          <Link href={route}>Explore Event</Link>
+          <Button link={`/events/${id}`}>
+            <span>Explore Event</span>
+            <span className={styles.icon}>
+              <ArrowRightIcon />
+            </span>
+          </Button>
         </div>
       </div>
     </li>
