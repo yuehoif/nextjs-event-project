@@ -3,15 +3,24 @@ import Link from "next/link";
 import styles from "./button.module.css";
 
 export type ButtonProps = {
-  link: string;
+  link?: string;
   children?: React.ReactNode;
+  onClick?: () => void;
 };
 
-const Button = ({ link, children }: ButtonProps) => {
+const Button = ({ link, onClick, children }: ButtonProps) => {
+  if (link) {
+    return (
+      <Link className={styles.btn} href={link}>
+        {children}
+      </Link>
+    );
+  }
+
   return (
-    <Link className={styles.btn} href={link}>
+    <button className={styles.btn} onClick={onClick}>
       {children}
-    </Link>
+    </button>
   );
 };
 
