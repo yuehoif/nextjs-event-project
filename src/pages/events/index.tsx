@@ -1,10 +1,16 @@
+import { GetStaticProps } from "next";
+
 import EventList from "@/components/event/event-list";
 import EventSearch from "@/components/event/event-search";
-import { getAllEvents } from "@/dummy-data";
 
-export default function EventsPage() {
-  const events = getAllEvents();
+import { getAllEvents } from "@/utils";
+import { Event } from "@/types";
 
+export type EventsPageProps = {
+  events: Event[];
+};
+
+export default function EventsPage({ events }: EventsPageProps) {
   return (
     <>
       <EventSearch />
@@ -12,3 +18,14 @@ export default function EventsPage() {
     </>
   );
 }
+
+export const getStaticProps: GetStaticProps = async () => {
+  const events = await getAllEvents();
+
+  return {
+    props: {
+      events,
+    },
+    revalidate: 60,
+  };
+};
