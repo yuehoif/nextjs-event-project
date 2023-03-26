@@ -31,3 +31,14 @@ export const getFeaturedEvents = async () => {
   const events = await getAllEvents();
   return events.filter((event) => event.isFeatured);
 };
+
+export const getEventById = async (id: string) => {
+  const events = await getAllEvents();
+  const event = events.find((e) => e.id === id);
+  return event;
+};
+
+export const getEventPaths = async () => {
+  const events = await getFeaturedEvents();
+  return events.map((event) => ({ params: { eventId: event.id } }));
+};

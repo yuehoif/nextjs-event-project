@@ -1,21 +1,18 @@
-import { useRouter } from "next/router";
+import { GetStaticPaths, GetStaticProps } from "next";
+import { ParsedUrlQuery } from "querystring";
 
 import EventSummary from "@/components/event-detail/event-summary";
 import EventLogistics from "@/components/event-detail/event-logistics";
 import EventContent from "@/components/event-detail/event-content";
 
-import { getEventById } from "../../dummy-data";
+import { getEventById, getEventPaths } from "@/utils";
+import { Event } from "@/types";
 
-export default function EventDetailPage() {
-  const router = useRouter();
-  const eventId = router.query.eventId as string;
+export type EventDetailPageProps = {
+  event: Event;
+};
 
-  const event = getEventById(eventId);
-
-  if (!event) {
-    return <p>No Event found</p>;
-  }
-
+export default function EventDetailPage({ event }: EventDetailPageProps) {
   return (
     <>
       <EventSummary title={event.title} />
@@ -31,3 +28,35 @@ export default function EventDetailPage() {
     </>
   );
 }
+
+interface Params extends ParsedUrlQuery {
+  eventId: string;
+}
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const paths = await getEventPaths();
+
+  return {
+    paths,
+    fallback: "blocking",
+  };
+};
+
+export const getStaticProps: GetStaticProps = async (context) => {
+  const { params } = context;
+  const { eventId } = params as Params;
+  const event = await getEventById(eventId);
+
+  if (!event) {
+    return {
+      notFound: true,
+    };
+  }
+
+  return {
+    props: {
+      event,
+    },
+    revalidate: 60,
+  };
+};
