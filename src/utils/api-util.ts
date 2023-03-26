@@ -42,3 +42,18 @@ export const getEventPaths = async () => {
   const events = await getFeaturedEvents();
   return events.map((event) => ({ params: { eventId: event.id } }));
 };
+
+export const getFilteredEvents = async (dateFilter: {
+  year: number;
+  month: number;
+}) => {
+  const { year, month } = dateFilter;
+  const events = await getAllEvents();
+  const filteredEvents = events.filter((event) => {
+    const eventDate = new Date(event.date);
+    return (
+      eventDate.getFullYear() === year && eventDate.getMonth() === month - 1
+    );
+  });
+  return filteredEvents;
+};

@@ -1,34 +1,34 @@
-import { useRouter } from "next/router";
+import { GetServerSideProps } from "next";
+import { ParsedUrlQuery } from "querystring";
 
 import EventList from "@/components/event/event-list";
 import ResultsTitle from "@/components/event/results-title";
-
-import { getFilteredEvents } from "@/dummy-data";
 import Button from "@/components/ui/button";
 import ErrorAlert from "@/components/ui/error-alert";
+import { getFilteredEvents } from "@/utils";
+import { Event } from "@/types";
 
-export default function FilteredEventsPage() {
-  const router = useRouter();
-  const filterData = router.query.slug;
+export type FilteredEventsPageProps = {
+  events: Event[];
+  date: string;
+  error?: FilteredEventsPageError;
+};
 
-  if (!filterData) {
-    return <p className="center">Loading...</p>;
-  }
+export enum FilteredEventsPageError {
+  InvalidFilter = "InvalidFilter",
+  NoEventsFound = "NoEventsFound",
+}
 
-  const filteredYear = filterData[0];
-  const fliteredMonth = filterData[1];
+interface Params extends ParsedUrlQuery {
+  slug: string[];
+}
 
-  const numYear = +filteredYear;
-  const numMonth = +fliteredMonth;
-
-  if (
-    isNaN(numYear) ||
-    isNaN(numMonth) ||
-    numYear > 2030 ||
-    numYear < 2021 ||
-    numMonth < 1 ||
-    numMonth > 12
-  ) {
+export default function FilteredEventsPage({
+  events,
+  date,
+  error,
+}: FilteredEventsPageProps) {
+  if (error && error === FilteredEventsPageError.InvalidFilter) {
     return (
       <>
         <ErrorAlert>
@@ -41,9 +41,7 @@ export default function FilteredEventsPage() {
     );
   }
 
-  const events = getFilteredEvents({ year: numYear, month: numMonth });
-
-  if (!events || events.length === 0) {
+  if (error && error === FilteredEventsPageError.NoEventsFound) {
     return (
       <>
         <ErrorAlert>
@@ -56,12 +54,55 @@ export default function FilteredEventsPage() {
     );
   }
 
-  const date = new Date(numYear, numMonth - 1);
-
   return (
     <>
-      <ResultsTitle date={date} />
+      <ResultsTitle date={JSON.parse(date)} />
       <EventList events={events} />
     </>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const { params } = context;
+  const {
+    slug: [year, month],
+  } = params as Params;
+
+  const numYear = Number(year);
+  const numMonth = Number(month);
+
+  if (
+    isNaN(numYear) ||
+    isNaN(numMonth) ||
+    numYear > 2030 ||
+    numYear < 2021 ||
+    numMonth < 1 ||
+    numMonth > 12
+  ) {
+    return {
+      props: {
+        error: FilteredEventsPageError.InvalidFilter,
+      },
+    };
+  }
+
+  const filteredEvents = await getFilteredEvents({
+    year: Number(year),
+    month: Number(month),
+  });
+
+  if (!filteredEvents || filteredEvents.length === 0) {
+    return {
+      props: {
+        error: FilteredEventsPageError.NoEventsFound,
+      },
+    };
+  }
+
+  return {
+    props: {
+      events: filteredEvents,
+      date: JSON.stringify(new Date(numYear, numMonth - 1)),
+    },
+  };
+};
