@@ -1,3 +1,5 @@
+import Head from "next/head";
+
 import EventList from "@/components/event/event-list";
 
 import { Events } from "@/types";
