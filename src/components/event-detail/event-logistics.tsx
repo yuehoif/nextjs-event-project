@@ -35,6 +35,7 @@ function EventLogistics({
           width="0"
           height="0"
           sizes="100vw"
+          priority={true}
         />
       </div>
       <ul className={styles.list}>

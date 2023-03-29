@@ -24,7 +24,14 @@ export default function EventItem({ event }: EventItemProps) {
 
   return (
     <li className={styles.item}>
-      <Image src={`/${image}`} width="0" height="0" sizes="100vw" alt={title} />
+      <Image
+        src={`/${image}`}
+        width="0"
+        height="0"
+        sizes="100vw"
+        alt={title}
+        priority={true}
+      />
       <div className={styles.content}>
         <div className={styles.summary}>
           <h2>{title}</h2>
